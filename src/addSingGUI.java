@@ -68,7 +68,7 @@ public class addSingGUI extends JFrame {
         style.setBounds(sizeX/2, sizeY*5/8, sizeX/4, sizeY/8);
 
         JButton add = new JButton("Add");
-        add.setBounds(sizeX/4, sizeY*6/8, sizeX/2, sizeY/8);
+        add.setBounds(sizeX/2, sizeY*6/8, sizeX/4, sizeY/8);
         add.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Pressed Add");
@@ -77,7 +77,7 @@ public class addSingGUI extends JFrame {
 
                 String db="jdbc:mysql://127.0.0.1:3306/concerts";
                 String user="root";
-                String pass="St951659";
+                String pass="StefanM951659";
                 try {
                     //Connecting to DB
                     con= DriverManager.getConnection(db,user,pass);
@@ -118,8 +118,14 @@ public class addSingGUI extends JFrame {
                         con= DriverManager.getConnection(db,user,pass);
                         if(con != null){System.out.println("Connection to db for addSinger successful!");}else{ System.out.println("Connection to db for addSinger NOT successful!");}
                         //New Singer Quarry
-                        ps=con.prepareStatement("INSERT INTO singers VALUES(new_id,new_fName,new_lName,new_nationality,new_style)");
-                        ps.execute();
+                        ps=con.prepareStatement("INSERT INTO singers VALUES(?,?,?,?,?)");
+                        ps.setInt(1, new_id);
+                        ps.setString(2, new_fName);
+                        ps.setString(3, new_lName);
+                        ps.setString(4, new_nationality);
+                        ps.setString(5, new_style);
+                        ps.executeUpdate();
+
                         ps.close();
                         rs.close();
                         con.close();
@@ -135,6 +141,40 @@ public class addSingGUI extends JFrame {
 
             }
         });
+        JButton del = new JButton("Delete");
+        del.setBounds(sizeX/4, sizeY*6/8, sizeX/4, sizeY/8);
+        del.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Pressed Del");
+                int delID;
+                //Database
+
+                String db="jdbc:mysql://127.0.0.1:3306/concerts";
+                String user="root";
+                String pass="StefanM951659";
+
+                try {
+                    //Connecting to DB
+                    con = DriverManager.getConnection(db, user, pass);
+                    if (con != null) {
+                        System.out.println("Connection to db for addSinger successful!");} else {System.out.println("Connection to db for addSinger NOT successful!");}
+                    if(id.getText() != null) {
+                        delID = Integer.parseInt((id.getText()));
+                        ps=con.prepareStatement("DELETE FROM SINGERS WHERE id =?");
+                        ps.setInt(1, delID);
+                        ps.executeUpdate();
+                        System.out.println("Deleted singer with id " + delID);
+
+
+                    }
+
+                }catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
+
 
 
         add(l_id);
@@ -148,6 +188,7 @@ public class addSingGUI extends JFrame {
         add(nationality);
         add(style);
         add(add);
+        add(del);
         repaint();
         System.out.println("Successfully build AddSingerGUI");
     }//end of build
