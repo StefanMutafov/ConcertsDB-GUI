@@ -7,6 +7,9 @@ import java.util.LinkedList;
 
 
 public class addSingGUI extends JFrame {
+    String db="jdbc:mysql://127.0.0.1:3306/concerts";
+    String user="root";
+    String pass="StefanM951659";
     Connection con;
     PreparedStatement ps;
     ResultSet rs;
@@ -23,8 +26,6 @@ public class addSingGUI extends JFrame {
         setLayout(null);
         setVisible(true);
         buildSingGui();
-
-
     }
 
     private void buildSingGui() {
@@ -72,12 +73,7 @@ public class addSingGUI extends JFrame {
         add.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Pressed Add");
-
                 //Database
-
-                String db="jdbc:mysql://127.0.0.1:3306/concerts";
-                String user="root";
-                String pass="StefanM951659";
                 try {
                     //Connecting to DB
                     con= DriverManager.getConnection(db,user,pass);
@@ -147,24 +143,49 @@ public class addSingGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Pressed Del");
                 int delID;
+                boolean check = true;
+                boolean check1 = false;
                 //Database
-
-                String db="jdbc:mysql://127.0.0.1:3306/concerts";
-                String user="root";
-                String pass="StefanM951659";
 
                 try {
                     //Connecting to DB
                     con = DriverManager.getConnection(db, user, pass);
                     if (con != null) {
-                        System.out.println("Connection to db for addSinger successful!");} else {System.out.println("Connection to db for addSinger NOT successful!");}
+                        System.out.println("Connection to db for delSinger successful!");} else {System.out.println("Connection to db for addSinger NOT successful!");}
                     if(id.getText() != null) {
                         delID = Integer.parseInt((id.getText()));
-                        ps=con.prepareStatement("DELETE FROM SINGERS WHERE id =?");
+                        ps=con.prepareStatement("SELECT singer_id FROM concerts_singers_relationship WHERE singer_id = ?");
                         ps.setInt(1, delID);
-                        ps.executeUpdate();
-                        System.out.println("Deleted singer with id " + delID);
+                        rs = ps.executeQuery();
+                        if(rs.next()){
+                            check1 = true;
+                            int result = JOptionPane.showConfirmDialog(null,"Deleting this record will result in a record with the same ID from another table to be deleted.Do you wish to continue?", "Confirm delete",
+                                    JOptionPane.YES_NO_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE);
 
+                            if(result == JOptionPane.NO_OPTION){
+                                check = false;
+                            }
+                        }
+                        rs.close();
+                        ps.close();
+                        if(check) {
+                            if(check1){
+                                ps = con.prepareStatement("DELETE FROM concerts_singers_relationship WHERE singer_id =?");
+                                ps.setInt(1, delID);
+                                ps.executeUpdate();
+                                System.out.println("Deleted concerts_singers_relationship with singer_id " + delID);
+                                ps.close();
+                            }
+
+                            ps = con.prepareStatement("DELETE FROM SINGERS WHERE id =?");
+                            ps.setInt(1, delID);
+                            ps.executeUpdate();
+                            System.out.println("Deleted singer with id " + delID);
+                            ps.close();
+                            con.close();
+
+                        }
 
                     }
 
