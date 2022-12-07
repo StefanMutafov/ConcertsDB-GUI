@@ -4,12 +4,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.LinkedList;
+import java.util.concurrent.ExecutionException;
 
 
 public class addSingGUI extends JFrame {
+
     String db="jdbc:mysql://127.0.0.1:3306/concerts";
     String user="root";
-    String pass="StefanM951659";
+    String pass="St951659";
     Connection con;
     PreparedStatement ps;
     ResultSet rs;
@@ -26,6 +28,29 @@ public class addSingGUI extends JFrame {
         setLayout(null);
         setVisible(true);
         buildSingGui();
+
+
+    }
+    private void updateCombo(JComboBox<String> j){
+        try {
+            //Connecting to DB
+            con= DriverManager.getConnection(db,user,pass);
+            if(con != null){System.out.println("Connection to db for addSinger successful!");}else{ System.out.println("Connection to db for addSinger NOT successful!");}
+            //Getting IDs from DB
+            ps=con.prepareStatement("SELECT id FROM singers");
+            ResultSet rs=ps.executeQuery();
+            j.removeAllItems();
+            while(rs.next()){
+                j.addItem(rs.getInt(1)+"");
+            }
+            ps.close();
+            rs.close();
+            con.close();
+
+        } catch (SQLException exe) {
+            throw new RuntimeException(exe);
+        }
+
     }
 
     private void buildSingGui() {
@@ -52,6 +77,7 @@ public class addSingGUI extends JFrame {
         l_style.setFont(new Font("Courier", Font.PLAIN, 17));
         l_style.setHorizontalAlignment(SwingConstants.CENTER);
 
+
         //Text Areas
         JTextField id = new JTextField();
         id.setBounds(sizeX/2, sizeY/8, sizeX/4, sizeY/8);
@@ -67,12 +93,40 @@ public class addSingGUI extends JFrame {
 
         JTextField style = new JTextField();
         style.setBounds(sizeX/2, sizeY*5/8, sizeX/4, sizeY/8);
+        JComboBox<String> ids = new JComboBox();
+        ids.setBounds(0, sizeY/8, sizeX/4, sizeY/8 );
+
+        ids.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                try {
+                    con= DriverManager.getConnection(db,user,pass);
+                    ps=con.prepareStatement("SELECT * FROM singers WHERE id ="+  ids.getSelectedItem());
+                    rs = ps.executeQuery();
+                    rs.next();
+                    id.setText(String.valueOf(rs.getInt(1)));
+                    fName.setText(rs.getString(2));
+                    lName.setText(rs.getString(3));
+                    nationality.setText(rs.getString(4));
+                    style.setText(rs.getString(5));
+
+                    ps.close();
+                    rs.close();
+                    con.close();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+            }
+        });
+        updateCombo(ids);
 
         JButton add = new JButton("Add");
         add.setBounds(sizeX/2, sizeY*6/8, sizeX/4, sizeY/8);
         add.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Pressed Add");
+
                 //Database
                 try {
                     //Connecting to DB
@@ -142,35 +196,40 @@ public class addSingGUI extends JFrame {
         del.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Pressed Del");
-                int delID;
+                int delID = 0;
                 boolean check = true;
                 boolean check1 = false;
                 //Database
+
 
                 try {
                     //Connecting to DB
                     con = DriverManager.getConnection(db, user, pass);
                     if (con != null) {
-                        System.out.println("Connection to db for delSinger successful!");} else {System.out.println("Connection to db for addSinger NOT successful!");}
-                    if(id.getText() != null) {
+                        System.out.println("Connection to db for delSinger successful!");
+                    } else {
+                        System.out.println("Connection to db for addSinger NOT successful!");
+                    }
+                    if (id.getText() != null) {
                         delID = Integer.parseInt((id.getText()));
-                        ps=con.prepareStatement("SELECT singer_id FROM concerts_singers_relationship WHERE singer_id = ?");
+                        ps = con.prepareStatement("SELECT singer_id FROM concerts_singers_relationship WHERE singer_id = ?");
                         ps.setInt(1, delID);
                         rs = ps.executeQuery();
-                        if(rs.next()){
+                        if (rs.next()) {
                             check1 = true;
-                            int result = JOptionPane.showConfirmDialog(null,"Deleting this record will result in a record with the same ID from another table to be deleted.Do you wish to continue?", "Confirm delete",
+                            int result = JOptionPane.showConfirmDialog(null, "Deleting this record will result in a record with the same ID from another table to be deleted.Do you wish to continue?", "Confirm delete",
                                     JOptionPane.YES_NO_OPTION,
                                     JOptionPane.QUESTION_MESSAGE);
 
-                            if(result == JOptionPane.NO_OPTION){
+                            if (result == JOptionPane.NO_OPTION) {
                                 check = false;
                             }
                         }
+                    }
                         rs.close();
                         ps.close();
-                        if(check) {
-                            if(check1){
+                        if (check) {
+                            if (check1) {
                                 ps = con.prepareStatement("DELETE FROM concerts_singers_relationship WHERE singer_id =?");
                                 ps.setInt(1, delID);
                                 ps.executeUpdate();
@@ -184,20 +243,28 @@ public class addSingGUI extends JFrame {
                             System.out.println("Deleted singer with id " + delID);
                             ps.close();
                             con.close();
+                            id.setText("");
+                            fName.setText("");
+                            lName.setText("");
+                           nationality.setText("");
+                            style.setText("");
+
 
                         }
 
+                    }catch(SQLException ex){
+                        throw new RuntimeException(ex);
                     }
-
-                }catch (SQLException ex) {
-                    throw new RuntimeException(ex);
+                testResults();
+                updateCombo(ids);
                 }
-            }
+            
+                
         });
 
 
 
-
+        add(ids);
         add(l_id);
         add(l_fName);
         add(l_lName);
@@ -212,7 +279,24 @@ public class addSingGUI extends JFrame {
         add(del);
         repaint();
         System.out.println("Successfully build AddSingerGUI");
+
     }//end of build
 
-
+public void testResults(){
+        try{
+            con= DriverManager.getConnection(db,user,pass);
+            if(con != null){System.out.println("Connection to db for addSinger successful!");}else{ System.out.println("Connection to db for addSinger NOT successful!");}
+            //Getting IDs from DB
+            ps=con.prepareStatement("SELECT id FROM singers");
+            rs=ps.executeQuery();
+            while(rs.next()){
+                System.out.println(rs.getInt(1));
+            }
+            ps.close();
+            rs.close();
+            con.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+}
 }//class end
