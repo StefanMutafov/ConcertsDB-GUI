@@ -31,17 +31,18 @@ public class addSingGUI extends JFrame {
 
 
     }
-    private void updateCombo(JComboBox<String> j){
+    private void updateCombo(JComboBox j){
         try {
             //Connecting to DB
             con= DriverManager.getConnection(db,user,pass);
             if(con != null){System.out.println("Connection to db for addSinger successful!");}else{ System.out.println("Connection to db for addSinger NOT successful!");}
             //Getting IDs from DB
-            ps=con.prepareStatement("SELECT id FROM singers");
+            ps=con.prepareStatement("SELECT * FROM singers");
             ResultSet rs=ps.executeQuery();
             j.removeAllItems();
+            System.out.println("Removed all items from combo");
             while(rs.next()){
-                j.addItem(rs.getInt(1)+"");
+                j.addItem(rs.getInt(1));
             }
             ps.close();
             rs.close();
@@ -93,13 +94,17 @@ public class addSingGUI extends JFrame {
 
         JTextField style = new JTextField();
         style.setBounds(sizeX/2, sizeY*5/8, sizeX/4, sizeY/8);
-        JComboBox<String> ids = new JComboBox();
+        JComboBox ids = new JComboBox();
         ids.setBounds(0, sizeY/8, sizeX/4, sizeY/8 );
 
-        ids.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
 
+
+        JButton show = new JButton("Show");
+        show.setBounds(0, sizeY*2/8, sizeX/4, sizeY/8 );
+        show.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 try {
+                    System.out.println("Recorded combo action");
                     con= DriverManager.getConnection(db,user,pass);
                     ps=con.prepareStatement("SELECT * FROM singers WHERE id ="+  ids.getSelectedItem());
                     rs = ps.executeQuery();
@@ -116,10 +121,10 @@ public class addSingGUI extends JFrame {
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
+                updateCombo(ids);
 
             }
         });
-        updateCombo(ids);
 
         JButton add = new JButton("Add");
         add.setBounds(sizeX/2, sizeY*6/8, sizeX/4, sizeY/8);
@@ -186,6 +191,7 @@ public class addSingGUI extends JFrame {
 
 
                     System.out.println("Added new singer!");
+                    updateCombo(ids);
                 }
 
 
@@ -248,22 +254,21 @@ public class addSingGUI extends JFrame {
                             lName.setText("");
                            nationality.setText("");
                             style.setText("");
-
+                            updateCombo(ids);
 
                         }
 
                     }catch(SQLException ex){
                         throw new RuntimeException(ex);
                     }
-                testResults();
-                updateCombo(ids);
+
+
                 }
             
                 
         });
 
-
-
+        add(show);
         add(ids);
         add(l_id);
         add(l_fName);
@@ -277,26 +282,11 @@ public class addSingGUI extends JFrame {
         add(style);
         add(add);
         add(del);
+        updateCombo(ids);
         repaint();
         System.out.println("Successfully build AddSingerGUI");
 
     }//end of build
 
-public void testResults(){
-        try{
-            con= DriverManager.getConnection(db,user,pass);
-            if(con != null){System.out.println("Connection to db for addSinger successful!");}else{ System.out.println("Connection to db for addSinger NOT successful!");}
-            //Getting IDs from DB
-            ps=con.prepareStatement("SELECT id FROM singers");
-            rs=ps.executeQuery();
-            while(rs.next()){
-                System.out.println(rs.getInt(1));
-            }
-            ps.close();
-            rs.close();
-            con.close();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-}
+
 }//class end

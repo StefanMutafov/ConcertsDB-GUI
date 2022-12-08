@@ -40,7 +40,7 @@ public class mainM extends JFrame {
         addC.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Pressed add concert");
-
+                new addConcertGUI("Add Concerts");
 
             }
         });
@@ -49,7 +49,7 @@ public class mainM extends JFrame {
         addStoC.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Pressed add singer to concert");
-
+                new addSingToConcertDB("Assign singer to concert");
 
             }
         });
@@ -97,6 +97,8 @@ public class mainM extends JFrame {
 
             }
         });
+
+
 
 
 
