@@ -58,6 +58,7 @@ public class mainM extends JFrame {
         showSforC.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Pressed show singers for concerts");
+                new showSingforC("Show singers for Concert");
 
 
             }

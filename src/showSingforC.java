@@ -14,6 +14,7 @@ public class showSingforC extends JFrame {
     Connection con;
     PreparedStatement ps;
     ResultSet rs;
+    LinkedList<Integer> sIDs =new LinkedList();
     int new_id;
     String new_fName, new_lName, new_nationality, new_style;
     LinkedList<Integer> oldId = new LinkedList();
@@ -74,6 +75,22 @@ public class showSingforC extends JFrame {
         style.setBounds(sizeX / 2, sizeY * 5 / 8, sizeX / 4, sizeY / 8);
         JComboBox ids = new JComboBox();
         ids.setBounds(0, sizeY / 8, sizeX / 4, sizeY / 8);
+        try {
+            con = DriverManager.getConnection(db, user, pass);
+            ps = con.prepareStatement("SELECT concert_id FROM concerts_singers_relationship");
+            rs = ps.executeQuery();
+            while(rs.next()){
+                ids.addItem(rs.getInt(1));
+            }
+            rs.close();
+            ps.close();
+            con.close();
+        }catch (SQLException ex){
+            ex.printStackTrace();
+        }
+
+
+
 
 
         JButton show = new JButton("Show");
@@ -82,16 +99,25 @@ public class showSingforC extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     System.out.println("Recorded combo action");
-                    con = DriverManager.getConnection(db, user, pass);
+                    Connection con = DriverManager.getConnection(db, user, pass);
                     //TODO Тук трябва да сложа команда, да визма от релейшоншип
-                    ps = con.prepareStatement("SELECT * FROM singers WHERE id =" + ids.getSelectedItem());
+                    PreparedStatement ps = con.prepareStatement("SELECT singer_id FROM concerts_singers_relationship WHERE concert_id =" + ids.getSelectedItem());
+                    ResultSet rs = ps.executeQuery();
+                    while(rs.next()){
+                        sIDs.add(rs.getInt(1));
+
+                    }
+                    ps.close();
+                    rs.close();
+                    ps = con.prepareStatement("SELECT * FROM singers WHERE id =" + sIDs.getFirst());
                     rs = ps.executeQuery();
                     rs.next();
                     id.setText(String.valueOf(rs.getInt(1)));
                     fName.setText(rs.getString(2));
                     lName.setText(rs.getString(3));
-                    nationality.setText(rs.getString(4));
-                    style.setText(rs.getString(5));
+                    nationality.setText(rs.getString(3));
+                    style.setText(rs.getString(4));
+
 
                     ps.close();
                     rs.close();
