@@ -1,5 +1,3 @@
-import com.mysql.cj.protocol.x.SyncFlushDeflaterOutputStream;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,7 +5,7 @@ import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.LinkedList;
 
-public class showSingforC extends JFrame {
+public class showConcertsforS extends JFrame {
 
 
     String db = "jdbc:mysql://127.0.0.1:3306/concerts";
@@ -25,38 +23,38 @@ public class showSingforC extends JFrame {
     final int sizeX = 400;
     final int sizeY = 400;
 
-    public showSingforC(String title) {
+    public showConcertsforS(String title) {
         setTitle(title);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(sizeX, sizeY);
         setLocationRelativeTo(null);
         setLayout(null);
         setVisible(true);
-        buildshowSingforC();
+        buildshowConcforS();
 
 
     }
 
-    private void buildshowSingforC() {
+    private void buildshowConcforS() {
         //GUI
         //Labels
         JLabel l_id = new JLabel("ID");
         l_id.setBounds(sizeX / 4, sizeY / 8, sizeX / 4, sizeY / 8);
         l_id.setFont(new Font("Courier", Font.PLAIN, 17));
         l_id.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel l_fName = new JLabel("First Name");
+        JLabel l_fName = new JLabel("Name");
         l_fName.setBounds(sizeX / 4, sizeY * 2 / 8, sizeX / 4, sizeY / 8);
         l_fName.setFont(new Font("Courier", Font.PLAIN, 17));
         l_fName.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel l_lName = new JLabel("Last Name");
+        JLabel l_lName = new JLabel("Place");
         l_lName.setBounds(sizeX / 4, sizeY * 3 / 8, sizeX / 4, sizeY / 8);
         l_lName.setFont(new Font("Courier", Font.PLAIN, 17));
         l_lName.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel l_nationality = new JLabel("Nationality");
+        JLabel l_nationality = new JLabel("Date");
         l_nationality.setBounds(sizeX / 4, sizeY * 4 / 8, sizeX / 4, sizeY / 8);
         l_nationality.setFont(new Font("Courier", Font.PLAIN, 17));
         l_nationality.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel l_style = new JLabel("Style");
+        JLabel l_style = new JLabel("Price");
         l_style.setBounds(sizeX / 4, sizeY * 5 / 8, sizeX / 4, sizeY / 8);
         l_style.setFont(new Font("Courier", Font.PLAIN, 17));
         l_style.setHorizontalAlignment(SwingConstants.CENTER);
@@ -81,7 +79,7 @@ public class showSingforC extends JFrame {
         ids.setBounds(0, sizeY / 8, sizeX / 4, sizeY / 8);
         try {
             con = DriverManager.getConnection(db, user, pass);
-            ps = con.prepareStatement("SELECT concert_id FROM concerts_singers_relationship");
+            ps = con.prepareStatement("SELECT singer_id FROM concerts_singers_relationship");
             rs = ps.executeQuery();
             LinkedList a = new LinkedList<>();
             while(rs.next()){
@@ -109,7 +107,7 @@ public class showSingforC extends JFrame {
                 }
                 try {
                     Connection con = DriverManager.getConnection(db, user, pass);
-                    PreparedStatement ps = con.prepareStatement("SELECT * FROM singers WHERE id =" + sIDs.get(move));
+                    PreparedStatement ps = con.prepareStatement("SELECT * FROM concerts WHERE id =" + sIDs.get(move));
                     ResultSet rs = ps.executeQuery();
                     rs.next();
                     id.setText(String.valueOf(rs.getInt(1)));
@@ -144,7 +142,7 @@ public class showSingforC extends JFrame {
                 }
                 try {
                     Connection con = DriverManager.getConnection(db, user, pass);
-                    PreparedStatement ps = con.prepareStatement("SELECT * FROM singers WHERE id =" + sIDs.get(move));
+                    PreparedStatement ps = con.prepareStatement("SELECT * FROM concerts WHERE id =" + sIDs.get(move));
                     ResultSet rs = ps.executeQuery();
                     rs.next();
                     id.setText(String.valueOf(rs.getInt(1)));
@@ -179,18 +177,18 @@ public class showSingforC extends JFrame {
                 try {
                     Connection con = DriverManager.getConnection(db, user, pass);
 
-                    PreparedStatement ps = con.prepareStatement("SELECT singer_id FROM concerts_singers_relationship WHERE concert_id =" + ids.getSelectedItem());
+                    PreparedStatement ps = con.prepareStatement("SELECT concert_id FROM concerts_singers_relationship WHERE singer_id =" + ids.getSelectedItem());
                     ResultSet rs = ps.executeQuery();
                     while(rs.next()){
 
-                            sIDs.add(rs.getInt(1));
+                        sIDs.add(rs.getInt(1));
 
 
                     }
 
                     ps.close();
                     rs.close();
-                    ps = con.prepareStatement("SELECT * FROM singers WHERE id =" + sIDs.getFirst());
+                    ps = con.prepareStatement("SELECT * FROM concerts WHERE id =" + sIDs.getFirst());
                     rs = ps.executeQuery();
                     rs.next();
                     id.setText(String.valueOf(rs.getInt(1)));
@@ -230,8 +228,3 @@ public class showSingforC extends JFrame {
 
     }
 }
-
-
-
-
-
