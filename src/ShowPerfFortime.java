@@ -1,4 +1,7 @@
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.LinkedList;
 
@@ -30,14 +33,31 @@ public class ShowPerfFortime extends JFrame {
 
     private void buildshowSingpert() {
         JTextField startD = new JTextField();
+        startD.setBounds(0, sizeY * 2 / 8, sizeX / 4, sizeY / 8);
        // startD.setBounds();
         JTextField endD = new JTextField();
+        endD.setBounds(0, sizeY * 3 / 8, sizeX / 4, sizeY / 8);
+
 
         JComboBox idS = new JComboBox();
+       idS.setBounds(0, sizeY * 1 / 8, sizeX / 4, sizeY / 8);
 
         JTextArea output = new JTextArea();
+        output.setSize(sizeX* 2/ 4, sizeY *6/ 8);
+        output.setLineWrap(true);
+        output.setEditable(false);
+        output.setVisible(true);
+
+        JScrollPane scroll = new JScrollPane (output);
+        scroll.setBounds(sizeX / 2-15, sizeY / 8, sizeX* 2/ 4, sizeY *6/ 8);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+
+
 
         JButton show = new JButton("Show");
+        show.setBounds(0, sizeY * 4 / 8, sizeX / 4, sizeY / 8);
 
         try {
             Connection con = DriverManager.getConnection(db, user, pass);
@@ -47,22 +67,22 @@ public class ShowPerfFortime extends JFrame {
                 idS.addItem(rs1.getInt(1));
 
             }
+            con.close();
+            ps1.close();
+            rs1.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
 
-
+        show.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
         try {
             Connection con = DriverManager.getConnection(db, user, pass);
-            PreparedStatement ps1 = con.prepareStatement("SELECT id FROM singers");
-            ResultSet rs1 = ps1.executeQuery();
-            while(rs1.next()){
-                idS.addItem(rs1.getInt(1));
-
-            }
-
-            while (rs1.next()) {
+//            PreparedStatement ps1 = con.prepareStatement("SELECT id FROM singers");
+//            ResultSet rs1 = ps1.executeQuery();
+//
+//            while (rs1.next()) {
 
                 PreparedStatement ps = con.prepareStatement("select c.* from (concerts c join concerts_singers_relationship csr on c.id=csr.concert_id) join singers s on csr.singer_id=s.id where (c.c_date between ? and ?) and csr.singer_id=?");
 
@@ -72,7 +92,9 @@ public class ShowPerfFortime extends JFrame {
                 ps.setInt(3, (Integer) idS.getSelectedItem());
                 ResultSet rs = ps.executeQuery();
                 int a = 0;
+                output.setText("");
                 while(rs.next()) {
+
                     output.append(String.valueOf(a+1)+ "\n");
                     output.append("ID: " + rs.getInt(1) + "\n");
                     output.append("Name: " + rs.getString(2) + "\n");
@@ -83,15 +105,21 @@ public class ShowPerfFortime extends JFrame {
                 }
                 rs.close();
                 ps.close();
-            }
-            ps1.close();
-            rs1.close();
-            } catch (SQLException e) {
-            throw new RuntimeException(e);
+//            }
+//            ps1.close();
+//            rs1.close();
+            } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
-
-
+            }
+        });
+        add(scroll);
+            add(show);
+            //add(output);
+            add(endD);
+            add(idS);
             add(startD);
+            repaint();
 
     }
 
